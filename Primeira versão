@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle Jauense</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to bottom, #4CAF50, #2e7d32);
+    margin: 0;
+    padding: 20px;
+    color: white;
+}
+
+.container {
+    max-width: 400px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    color: black;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+h1 {
+    text-align: center;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 5px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #388e3c;
+}
+
+.total {
+    margin-top: 20px;
+    font-weight: bold;
+    text-align: center;
+    font-size: 18px;
+}
+
+.lista {
+    margin-top: 15px;
+    font-size: 14px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>Controle Jauense</h1>
+
+<h3>Cadastrar Produto</h3>
+<input type="text" id="nomeProduto" placeholder="Nome do Produto">
+<input type="number" id="precoProduto" placeholder="Preço">
+<input type="number" id="estoqueProduto" placeholder="Estoque">
+<button onclick="cadastrarProduto()">Cadastrar Produto</button>
+
+<h3>Registrar Venda</h3>
+<input type="text" id="nomeVenda" placeholder="Nome do Produto">
+<button onclick="registrarVenda()">Registrar Venda</button>
+
+<div class="total" id="total">
+Total Vendido: R$ 0.00
+</div>
+
+<div class="lista" id="listaProdutos">
+</div>
+
+</div>
+
+<script>
+let produtos = JSON.parse(localStorage.getItem("produtos")) || [];
+let totalVendido = parseFloat(localStorage.getItem("total")) || 0;
+
+atualizarTela();
+
+function cadastrarProduto() {
+    const nome = document.getElementById("nomeProduto").value;
+    const preco = parseFloat(document.getElementById("precoProduto").value);
+    const estoque = parseInt(document.getElementById("estoqueProduto").value);
+
+    if (nome && !isNaN(preco) && !isNaN(estoque)) {
+        produtos.push({ nome, preco, estoque });
+        salvarDados();
+        atualizarTela();
+        alert("Produto cadastrado!");
+        limparCampos();
+    } else {
+        alert("Preencha todos os campos corretamente.");
+    }
+}
+
+function registrarVenda() {
+    const nomeVenda = document.getElementById("nomeVenda").value;
+    const produto = produtos.find(p => p.nome === nomeVenda);
+
+    if (produto && produto.estoque > 0) {
+        produto.estoque--;
+        totalVendido += produto.preco;
+        salvarDados();
+        atualizarTela();
+        alert("Venda registrada!");
+    } else {
+        alert("Produto não encontrado ou sem estoque.");
+    }
+}
+
+function atualizarTela() {
+    document.getElementById("total").innerText =
+        "Total Vendido: R$ " + totalVendido.toFixed(2);
+
+    let lista = "";
+    produtos.forEach(p => {
+        lista += `<p>${p.nome} | Estoque: ${p.estoque}</p>`;
+    });
+
+    document.getElementById("listaProdutos").innerHTML = lista;
+}
+
+function salvarDados() {
+    localStorage.setItem("produtos", JSON.stringify(produtos));
+    localStorage.setItem("total", totalVendido);
+}
+
+function limparCampos() {
+    document.getElementById("nomeProduto").value = "";
+    document.getElementById("precoProduto").value = "";
+    document.getElementById("estoqueProduto").value = "";
+}
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4CAF50">
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+</script>
+
+</body>
+</html>
